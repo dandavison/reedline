@@ -9,7 +9,7 @@ use strum::IntoEnumIterator;
 struct ReedLineCrossTermKeyCode(crossterm::event::KeyCode);
 impl ReedLineCrossTermKeyCode {
     fn iterator() -> std::slice::Iter<'static, ReedLineCrossTermKeyCode> {
-        static KEYCODE: [ReedLineCrossTermKeyCode; 19] = [
+        static KEYCODE: [ReedLineCrossTermKeyCode; 29] = [
             ReedLineCrossTermKeyCode(KeyCode::Backspace),
             ReedLineCrossTermKeyCode(KeyCode::Enter),
             ReedLineCrossTermKeyCode(KeyCode::Left),
@@ -25,6 +25,16 @@ impl ReedLineCrossTermKeyCode {
             ReedLineCrossTermKeyCode(KeyCode::Delete),
             ReedLineCrossTermKeyCode(KeyCode::Insert),
             ReedLineCrossTermKeyCode(KeyCode::F(1)),
+            ReedLineCrossTermKeyCode(KeyCode::Char('-')),
+            ReedLineCrossTermKeyCode(KeyCode::Char('+')),
+            ReedLineCrossTermKeyCode(KeyCode::Char('[')),
+            ReedLineCrossTermKeyCode(KeyCode::Char(']')),
+            ReedLineCrossTermKeyCode(KeyCode::Char('\\')),
+            ReedLineCrossTermKeyCode(KeyCode::Char(';')),
+            ReedLineCrossTermKeyCode(KeyCode::Char('\'')),
+            ReedLineCrossTermKeyCode(KeyCode::Char(',')),
+            ReedLineCrossTermKeyCode(KeyCode::Char('.')),
+            ReedLineCrossTermKeyCode(KeyCode::Char('/')),
             ReedLineCrossTermKeyCode(KeyCode::Char(' ')),
             ReedLineCrossTermKeyCode(KeyCode::Char('a')),
             ReedLineCrossTermKeyCode(KeyCode::Null),
@@ -53,6 +63,16 @@ impl Display for ReedLineCrossTermKeyCode {
                 KeyCode::Delete => write!(f, "Delete"),
                 KeyCode::Insert => write!(f, "Insert"),
                 KeyCode::F(_) => write!(f, "F<number>"),
+                KeyCode::Char('-') => write!(f, "Minus"),
+                KeyCode::Char('+') => write!(f, "Plus"),
+                KeyCode::Char('[') => write!(f, "OpenSquareBracket"),
+                KeyCode::Char(']') => write!(f, "CloseSquareBracket"),
+                KeyCode::Char('\\') => write!(f, "Backslash"),
+                KeyCode::Char(';') => write!(f, "SemiColon"),
+                KeyCode::Char('\'') => write!(f, "SingleQuote"),
+                KeyCode::Char(',') => write!(f, "Comma"),
+                KeyCode::Char('.') => write!(f, "Period"),
+                KeyCode::Char('/') => write!(f, "Slash"),
                 KeyCode::Char(' ') => write!(f, "Space"),
                 KeyCode::Char(_) => write!(f, "Char_<letter>"),
                 KeyCode::Null => write!(f, "Null"),
