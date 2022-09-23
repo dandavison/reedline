@@ -1,5 +1,8 @@
+use std::io::Write;
+
 use crate::{history::SearchQuery, Hinter, History};
 use nu_ansi_term::{Color, Style};
+use std::fs::OpenOptions;
 
 /// A hinter that use the completions or the history to show a hint to the user
 ///
@@ -10,6 +13,25 @@ pub struct DefaultHinter {
     min_chars: usize,
 }
 
+fn should_redact(command: &str) -> bool {
+    if let Ok(redacted_hints) = std::env::var("NU_REDACTED_HINTS_REGEXP") {
+        let redacted_hints_re = regex::Regex::new(&redacted_hints).unwrap();
+        let mut file = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open("/tmp/log")
+            .unwrap();
+        writeln!(
+            file,
+            "testing regex {:?} on: {}",
+            redacted_hints_re, command
+        );
+        redacted_hints_re.is_match(command)
+    } else {
+        false
+    }
+}
+
 impl Hinter for DefaultHinter {
     fn handle(
         &mut self,
@@ -18,7 +40,7 @@ impl Hinter for DefaultHinter {
         history: &dyn History,
         use_ansi_coloring: bool,
     ) -> String {
-        self.current_hint = if line.chars().count() >= self.min_chars {
+        self.current_hint = if line.chars().count() >= self.min_chars && !should_redact(line) {
             history
                 .search(SearchQuery::last_with_prefix(line.to_string()))
                 .expect("todo: error handling")
@@ -40,6 +62,8 @@ impl Hinter for DefaultHinter {
             self.current_hint.clone()
         }
     }
+
+    // let-env NU_REDACTED_HINTS_REGEXP = '^git reset'
 
     fn complete_hint(&self) -> String {
         self.current_hint.clone()

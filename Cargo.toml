@@ -33,6 +33,7 @@ serde_json = { version = "1.0.79", optional = true }
 gethostname = { version = "0.2.3", optional = true }
 thiserror = "1.0.31"
 crossbeam = { version = "0.8.2", optional = true }
+regex = "1.5.5"
 
 [dev-dependencies]
 tempfile = "3.3.0"
