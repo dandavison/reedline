@@ -513,8 +513,12 @@ impl Menu for ColumnarMenu {
     /// Selects what type of event happened with the menu
     fn menu_event(&mut self, event: MenuEvent) {
         match &event {
-            MenuEvent::Activate(_) => self.active = true,
+            MenuEvent::Activate(_) => {
+                log(&format!("me: MenuEvent::Activate"));
+                self.active = true
+            }
             MenuEvent::Deactivate => {
+                log(&format!("me: MenuEvent::Deactivate"));
                 self.active = false;
                 self.input = None;
             }
@@ -810,4 +814,16 @@ mod tests {
             append_whitespace: false,
         }
     }
+}
+
+pub fn log(msg: &str) {
+    use std::fs::OpenOptions;
+    use std::io::Write;
+
+    let mut file = OpenOptions::new()
+        .append(true)
+        .create(true)
+        .open("/tmp/log.txt")
+        .unwrap();
+    writeln!(file, "{}\n", msg).unwrap();
 }

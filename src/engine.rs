@@ -703,6 +703,7 @@ impl Reedline {
     ) -> io::Result<EventStatus> {
         match event {
             ReedlineEvent::Menu(name) => {
+                log(&format!("hee: ReedlineEvent::Menu"));
                 if self.active_menu().is_none() {
                     if let Some(menu) = self.menus.iter_mut().find(|menu| menu.name() == name) {
                         menu.menu_event(MenuEvent::Activate(self.quick_completions));
@@ -736,6 +737,7 @@ impl Reedline {
                 Ok(EventStatus::Inapplicable)
             }
             ReedlineEvent::MenuNext => {
+                log(&format!("hee: ReedlineEvent::MenuNext"));
                 self.active_menu()
                     .map_or(Ok(EventStatus::Inapplicable), |menu| {
                         menu.menu_event(MenuEvent::NextElement);
@@ -743,6 +745,7 @@ impl Reedline {
                     })
             }
             ReedlineEvent::MenuPrevious => {
+                log(&format!("hee: ReedlineEvent::MenuPrevious"));
                 self.active_menu()
                     .map_or(Ok(EventStatus::Inapplicable), |menu| {
                         menu.menu_event(MenuEvent::PreviousElement);
@@ -750,6 +753,7 @@ impl Reedline {
                     })
             }
             ReedlineEvent::MenuUp => {
+                log(&format!("hee: ReedlineEvent::MenuUp"));
                 self.active_menu()
                     .map_or(Ok(EventStatus::Inapplicable), |menu| {
                         menu.menu_event(MenuEvent::MoveUp);
@@ -757,6 +761,7 @@ impl Reedline {
                     })
             }
             ReedlineEvent::MenuDown => {
+                log(&format!("hee: ReedlineEvent::MenuDown"));
                 self.active_menu()
                     .map_or(Ok(EventStatus::Inapplicable), |menu| {
                         menu.menu_event(MenuEvent::MoveDown);
@@ -764,6 +769,7 @@ impl Reedline {
                     })
             }
             ReedlineEvent::MenuLeft => {
+                log(&format!("hee: ReedlineEvent::MenuLeft"));
                 self.active_menu()
                     .map_or(Ok(EventStatus::Inapplicable), |menu| {
                         menu.menu_event(MenuEvent::MoveLeft);
@@ -771,6 +777,7 @@ impl Reedline {
                     })
             }
             ReedlineEvent::MenuRight => {
+                log(&format!("hee: ReedlineEvent::MenuRight"));
                 self.active_menu()
                     .map_or(Ok(EventStatus::Inapplicable), |menu| {
                         menu.menu_event(MenuEvent::MoveRight);
@@ -778,6 +785,7 @@ impl Reedline {
                     })
             }
             ReedlineEvent::MenuPageNext => {
+                log(&format!("hee: ReedlineEvent::MenuPageNext"));
                 self.active_menu()
                     .map_or(Ok(EventStatus::Inapplicable), |menu| {
                         menu.menu_event(MenuEvent::NextPage);
@@ -785,6 +793,7 @@ impl Reedline {
                     })
             }
             ReedlineEvent::MenuPagePrevious => {
+                log(&format!("hee: ReedlineEvent::MenuPagePrevious"));
                 self.active_menu()
                     .map_or(Ok(EventStatus::Inapplicable), |menu| {
                         menu.menu_event(MenuEvent::PreviousPage);
@@ -792,6 +801,7 @@ impl Reedline {
                     })
             }
             ReedlineEvent::HistoryHintComplete => {
+                log(&format!("hee: ReedlineEvent::HistoryHintComplete"));
                 if let Some(hinter) = self.hinter.as_mut() {
                     let current_hint = hinter.complete_hint();
                     if self.hints_active()
@@ -806,6 +816,7 @@ impl Reedline {
                 Ok(EventStatus::Inapplicable)
             }
             ReedlineEvent::HistoryHintWordComplete => {
+                log(&format!("hee: ReedlineEvent::HistoryHintWordComplete"));
                 if let Some(hinter) = self.hinter.as_mut() {
                     let current_hint_part = hinter.next_hint_token();
                     if self.hints_active()
@@ -820,10 +831,12 @@ impl Reedline {
                 Ok(EventStatus::Inapplicable)
             }
             ReedlineEvent::Esc => {
+                log(&format!("hee: ReedlineEvent::Esc"));
                 self.deactivate_menus();
                 Ok(EventStatus::Handled)
             }
             ReedlineEvent::CtrlD => {
+                log(&format!("hee: ReedlineEvent::CtrlD"));
                 if self.editor.is_empty() {
                     self.editor.reset_undo_stack();
                     Ok(EventStatus::Exits(Signal::CtrlD))
@@ -833,22 +846,26 @@ impl Reedline {
                 }
             }
             ReedlineEvent::CtrlC => {
+                log(&format!("hee: ReedlineEvent::CtrlC"));
                 self.deactivate_menus();
                 self.run_edit_commands(&[EditCommand::Clear]);
                 self.editor.reset_undo_stack();
                 Ok(EventStatus::Exits(Signal::CtrlC))
             }
             ReedlineEvent::ClearScreen => {
+                log(&format!("hee: ReedlineEvent::ClearScreen"));
                 self.deactivate_menus();
                 self.painter.clear_screen()?;
                 Ok(EventStatus::Handled)
             }
             ReedlineEvent::ClearScrollback => {
+                log(&format!("hee: ReedlineEvent::ClearScrollback"));
                 self.deactivate_menus();
                 self.painter.clear_scrollback()?;
                 Ok(EventStatus::Handled)
             }
             ReedlineEvent::Enter => {
+                log(&format!("hee: ReedlineEvent::Enter"));
                 for menu in self.menus.iter_mut() {
                     if menu.is_active() {
                         menu.replace_in_buffer(&mut self.editor);
@@ -889,10 +906,12 @@ impl Reedline {
                 }
             }
             ReedlineEvent::ExecuteHostCommand(host_command) => {
+                log(&format!("hee: ReedlineEvent::ExecuteHostCommand"));
                 // TODO: Decide if we need to do something special to have a nicer painter state on the next go
                 Ok(EventStatus::Exits(Signal::Success(host_command)))
             }
             ReedlineEvent::Edit(commands) => {
+                log(&format!("hee: ReedlineEvent::Edit({:?})", commands));
                 self.run_edit_commands(&commands);
                 if let Some(menu) = self.menus.iter_mut().find(|men| men.is_active()) {
                     if self.quick_completions && menu.can_quick_complete() {
@@ -900,9 +919,17 @@ impl Reedline {
                             Some(&EditCommand::Backspace)
                             | Some(&EditCommand::BackspaceWord)
                             | Some(&EditCommand::MoveToLineStart) => {
+                                log(&format!(
+                                    "hee: ReedlineEvent::Edit({:?}): (backspace etc) menu deactivate",
+                                    commands
+                                ));
                                 menu.menu_event(MenuEvent::Deactivate)
                             }
                             _ => {
+                                log(&format!(
+                                    "hee: ReedlineEvent::Edit({:?}): do quick_completions",
+                                    commands
+                                ));
                                 menu.menu_event(MenuEvent::Edit(self.quick_completions));
                                 menu.update_values(
                                     &mut self.editor,
@@ -910,11 +937,23 @@ impl Reedline {
                                     self.history.as_ref(),
                                 );
                                 if menu.get_values().len() == 1 {
+                                    log(&format!(
+                                        "hee: ReedlineEvent::Edit({:?}): unique quick_completion!",
+                                        commands
+                                    ));
                                     return self.handle_editor_event(prompt, ReedlineEvent::Enter);
                                 }
                                 if self.editor.line_buffer().get_buffer().is_empty() {
+                                    log(&format!(
+                                        "hee: ReedlineEvent::Edit({:?}): buffer empty: menu deactivate",
+                                        commands
+                                    ));
                                     menu.menu_event(MenuEvent::Deactivate);
                                 } else {
+                                    log(&format!(
+                                        "hee: ReedlineEvent::Edit({:?}): buffer non-empty: quick completions",
+                                        commands
+                                    ));
                                     menu.menu_event(MenuEvent::Edit(self.quick_completions));
                                 }
                             }
@@ -933,34 +972,42 @@ impl Reedline {
                 Ok(EventStatus::Handled)
             }
             ReedlineEvent::PreviousHistory => {
+                log(&format!("hee: ReedlineEvent::PreviousHistory"));
                 self.previous_history();
                 Ok(EventStatus::Handled)
             }
             ReedlineEvent::NextHistory => {
+                log(&format!("hee: ReedlineEvent::NextHistory"));
                 self.next_history();
                 Ok(EventStatus::Handled)
             }
             ReedlineEvent::Up => {
+                log(&format!("hee: ReedlineEvent::Up"));
                 self.up_command();
                 Ok(EventStatus::Handled)
             }
             ReedlineEvent::Down => {
+                log(&format!("hee: ReedlineEvent::Down"));
                 self.down_command();
                 Ok(EventStatus::Handled)
             }
             ReedlineEvent::Left => {
+                log(&format!("hee: ReedlineEvent::Left"));
                 self.run_edit_commands(&[EditCommand::MoveLeft]);
                 Ok(EventStatus::Handled)
             }
             ReedlineEvent::Right => {
+                log(&format!("hee: ReedlineEvent::Right"));
                 self.run_edit_commands(&[EditCommand::MoveRight]);
                 Ok(EventStatus::Handled)
             }
             ReedlineEvent::SearchHistory => {
+                log(&format!("hee: ReedlineEvent::SearchHistory"));
                 self.enter_history_search();
                 Ok(EventStatus::Handled)
             }
             ReedlineEvent::Multiple(events) => {
+                log(&format!("hee: ReedlineEvent::Multiple"));
                 let mut latest_signal = EventStatus::Inapplicable;
                 for event in events {
                     match self.handle_editor_event(prompt, event)? {
@@ -982,6 +1029,7 @@ impl Reedline {
                 Ok(latest_signal)
             }
             ReedlineEvent::UntilFound(events) => {
+                log(&format!("hee: ReedlineEvent::UntilFound({:?})", events));
                 for event in events {
                     match self.handle_editor_event(prompt, event)? {
                         EventStatus::Inapplicable => {
@@ -995,7 +1043,10 @@ impl Reedline {
                 // Exhausting the event handlers is still considered handled
                 Ok(EventStatus::Inapplicable)
             }
-            ReedlineEvent::None | ReedlineEvent::Mouse => Ok(EventStatus::Inapplicable),
+            ReedlineEvent::None | ReedlineEvent::Mouse => {
+                log(&format!("hee: ReedlineEvent::(None | Mouse))"));
+                Ok(EventStatus::Inapplicable)
+            }
         }
     }
 
@@ -1455,6 +1506,17 @@ impl Reedline {
         }
         Ok(messages)
     }
+}
+
+pub fn log(msg: &str) {
+    use std::fs::OpenOptions;
+
+    let mut file = OpenOptions::new()
+        .append(true)
+        .create(true)
+        .open("/tmp/log.txt")
+        .unwrap();
+    writeln!(file, "{}\n", msg).unwrap();
 }
 
 #[test]
