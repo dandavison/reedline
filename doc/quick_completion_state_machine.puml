@@ -1,0 +1,9 @@
+@startuml
+[*] --> EmptyNoMenu
+EmptyNoMenu --> TextNoMenu: ReedlineEvent::Edit([InsertChar('l')])\nReedlineEvent::Edit([InsertChar('s')])\nReedlineEvent::Edit([InsertChar('s')])\nReedlineEvent::Edit([InsertChar('a')])
+TextNoMenu : "ls a"
+TextNoMenu --> TextWithMenu1: TAB\nReedlineEvent::UntilFound([Menu("completion_menu"), MenuNext])\nReedlineEvent::Menu\nMenuEvent::Activate
+TextWithMenu1: "ls a"\naaa.txt | abb.txt
+TextWithMenu1 --> TextWithMenu2: a\nReedlineEvent::Edit([InsertChar('a')])\nquick complete\nReedlineEvent::Enter\nMenuEvent::Deactivate
+TextWithMenu2: "aaa.txt"
+@enduml
